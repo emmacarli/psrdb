@@ -3,6 +3,7 @@ import logging
 import copy
 import requests as r
 from requests.packages.urllib3.util.retry import Retry
+from json.decoder import JSONDecodeError
 
 
 class GraphQLClient:
@@ -57,9 +58,14 @@ class GraphQLClient:
             if "JWT" in header_log["Authorization"]:
                 header_log["Authorization"] = "JWT [redacted]"
         self.logger.debug(f"Using header: {json.dumps(header_log, indent=4)}")
-        response = self.graphql_session.post(self.graphql_url, headers=self.header, json=payload, timeout=(60, 60))
-        content = json.loads(response.content)
+        response = self.graphql_session.post(self.graphql_url, headers=self.header, json=payload, timeout=(7200, 7200))
 
+        try:
+            content = json.loads(response.content)
+        except JSONDecodeError as e:
+            self.logger.error(f"Failed to decode JSON response from URL: {self.graphql_url} with payload: {json.dumps(payload, indent=4)}. Error: {e}")
+            return  
+        
         if response.status_code != 200:
             self.logger.error(f"GraphQL response.status_code != {response.status_code}")
             self.handle_error_msg(content)
