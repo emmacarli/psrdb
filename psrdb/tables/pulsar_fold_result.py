@@ -39,6 +39,7 @@ class PulsarFoldResult(GraphQLTable):
             "pipelineRun { rm }",
             "pipelineRun { rmErr }",
             "pipelineRun { percentRfiZapped }",
+            "pulsar { name }",
         ]
 
     def list(
@@ -124,7 +125,7 @@ class PulsarFoldResult(GraphQLTable):
 
         # Loop over the pulsar_fold_results and dump them as a file
         with open(output_name, "w") as f:
-            f.write("ID,UTC Start,Observing band,Duration (s),DM (pc cm^-3),DM error (pc cm^-3),DM epoch (MJD),DM chi2r,DM tres,SN,Flux (mJy),RM (rad m^-2),RM error (rad m^-2),RFI zapped (%)\n")
+            f.write("ID,UTC Start,Observing band,Duration (s),DM (pc cm^-3),DM error (pc cm^-3),DM epoch (MJD),DM chi2r,DM tres,SN,Flux (mJy),RM (rad m^-2),RM error (rad m^-2),RFI zapped (%),Pulsar Name\n")
             for pulsar_fold_result_dict in pulsar_fold_result_dicts:
                 data_line = [
                     str(pulsar_fold_result_dict["id"]),
@@ -141,6 +142,7 @@ class PulsarFoldResult(GraphQLTable):
                     str(pulsar_fold_result_dict["pipelineRun"]["rm"]),
                     str(pulsar_fold_result_dict["pipelineRun"]["rmErr"]),
                     str(pulsar_fold_result_dict["pipelineRun"]["percentRfiZapped"]),
+                    str(pulsar_fold_result_dict["pulsar"]["name"]),
                 ]
                 f.write(f"{','.join(data_line)}\n")
         return output_name
